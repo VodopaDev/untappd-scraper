@@ -138,4 +138,6 @@ dmypy.json
 cython_debug/
 
 # My ignores
-untappd/
+data/
+logs/
+crawled_users.pkl

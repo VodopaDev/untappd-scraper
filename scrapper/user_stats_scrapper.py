@@ -1,4 +1,4 @@
-import utils
+from .network import request_utils
 from bs4 import BeautifulSoup
 
 class User:
@@ -57,14 +57,14 @@ class UserStatsScrapper:
         facebook, twitter, foursquare = find_socials(socials_div)
         return location, facebook, twitter, foursquare
     
-    def scrap(self, auth_cookie=None, proxies_list=None):    
+    def scrap(self, auth_cookie=None, tor_proxy=None):    
         user_url = f"https://untappd.com/user/{self.user_id}"
         error_msg = f"{self.user_id}'s stats"
-        request_text = utils.try_and_save_request(user_url, utils.default_headers, auth_cookie, proxies_list, error_msg)
-        if request_text is None:
+        status_code, response = request_utils.throttled_request(user_url, request_utils.default_headers, auth_cookie, error_msg, tor_proxy)
+        if response is None:
             return None
 
-        soup = BeautifulSoup(request_text, 'html.parser')
+        soup = BeautifulSoup(response, 'html.parser')
 
         if soup.find("div", {"class": "private_user"}) is not None:
             return None

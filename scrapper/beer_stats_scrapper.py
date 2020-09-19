@@ -1,4 +1,4 @@
-import utils
+from .network import request_utils
 from bs4 import BeautifulSoup
 
 class Beer:
@@ -23,12 +23,15 @@ class BeerStatsScrapper:
     def __init__(self, beer_id):
         self.beer_id = beer_id
         
-    def scrap(self, auth_cookie=None, proxies_list=None):
+    def scrap(self, auth_cookie=None, tor_proxy=None):
         beer_url = f"https://untappd.com/b/a/{self.beer_id}"
         error_message =  f"{self.beer_id}'s stats"
         
-        request_text = utils.try_and_save_request(beer_url, utils.default_headers, auth_cookie, proxies_list, error_message)
-        soup = BeautifulSoup(request_text, 'html.parser')
+        status_code, response = request_utils.throttled_request(beer_url, request_utils.default_headers, auth_cookie, error_message, tor_proxy)
+        if status_code == 404:
+            return None
+        
+        soup = BeautifulSoup(response, 'html.parser')
 
         top_div = soup.find("div", {"class": "top"})
         picture = top_div.find("img")["src"]

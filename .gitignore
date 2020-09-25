@@ -138,6 +138,7 @@ dmypy.json
 cython_debug/
 
 # My ignores
-data/
+tor/
+output/
 logs/
-crawled_users.pkl
+*.pkl

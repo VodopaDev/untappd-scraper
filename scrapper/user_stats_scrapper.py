@@ -1,15 +1,17 @@
 from .network import request_utils
 from bs4 import BeautifulSoup
 
+USER_STATS_URL = "https://untappd.com/user/{}"
+USER_STATS_ERR_MSG = "{} stats"
+
 class User:
-    def __init__(self, user_id, name, num_checkins, num_beers, num_badges, num_friends, friends, is_supporter, facebook, twitter, foursquare, location, profile_picture, profile_banner):
+    def __init__(self, user_id, name, num_checkins, num_beers, num_badges, num_friends, is_supporter, facebook, twitter, foursquare, location, profile_picture, profile_banner):
         self.user_id = user_id
         self.name = name
         self.num_checkins = num_checkins
         self.num_beers = num_beers
         self.num_badges = num_badges
         self.num_friends = num_friends
-        self.friends = friends
         self.is_supporter = is_supporter
         self.facebook = facebook
         self.twitter = twitter
@@ -31,10 +33,11 @@ class UserStatsScrapper:
         def find_stat(href):
             return int(div.find("a", {"href": href}).find("span", {"class": "stat"}).text.replace(",", ""))
 
-        num_checkins = find_stat(f"/user/{self.user_id}")
-        num_beers = find_stat(f"/user/{self.user_id}/beers")
-        num_friends = find_stat(f"/user/{self.user_id}/friends")
-        num_badges = find_stat(f"/user/{self.user_id}/badges")
+        href = f"/user/{self.user_id}"
+        num_checkins = find_stat(href)
+        num_beers = find_stat(href + "/beers")
+        num_friends = find_stat(href + "/friends")
+        num_badges = find_stat(href + "/badges")
         return num_checkins, num_beers, num_friends, num_badges
 
     def __find_details_from_div(self, div):
@@ -58,10 +61,10 @@ class UserStatsScrapper:
         return location, facebook, twitter, foursquare
     
     def scrap(self, auth_cookie=None, tor_proxy=None):    
-        user_url = f"https://untappd.com/user/{self.user_id}"
-        error_msg = f"{self.user_id}'s stats"
-        status_code, response = request_utils.throttled_request(user_url, request_utils.default_headers, auth_cookie, error_msg, tor_proxy)
-        if response is None:
+        user_url = USER_STATS_URL.format(self.user_id)
+        error_msg = USER_STATS_ERR_MSG.format(self.user_id)
+        status_code, response = request_utils.throttled_request(user_url, request_utils.DEFAULT_HEADERS, auth_cookie, error_msg, tor_proxy)
+        if response is None or status_code in [None, 404]:
             return None
 
         soup = BeautifulSoup(response, 'html.parser')
@@ -81,4 +84,4 @@ class UserStatsScrapper:
         profile_picture = soup.find("div", {"class": "avatar-holder"}).find("img")["src"]
         profile_banner = soup.find("div", {"class": "profile_header"})["data-image-url"]
 
-        return User(self.user_id, name, num_checkins, num_beers, num_badges, num_friends, None, is_supporter, facebook, twitter, foursquare, location, profile_picture, profile_banner)
+        return User(self.user_id, name, num_checkins, num_beers, num_badges, num_friends, is_supporter, facebook, twitter, foursquare, location, profile_picture, profile_banner)

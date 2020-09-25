@@ -1,6 +1,9 @@
 from .network import request_utils
 from bs4 import BeautifulSoup
 
+BEER_URL = "https://untappd.com/b/a/{}"
+BEER_ERR_MSG = "{} stats"
+
 class Beer:
     def __init__(self, beer_id, name, brewery_id, style, abv, ibu, num_checkins, num_users, num_ratings, avg_rating, description, picture):
         self.beer_id = beer_id
@@ -24,10 +27,10 @@ class BeerStatsScrapper:
         self.beer_id = beer_id
         
     def scrap(self, auth_cookie=None, tor_proxy=None):
-        beer_url = f"https://untappd.com/b/a/{self.beer_id}"
-        error_message =  f"{self.beer_id}'s stats"
+        beer_url = BEER_URL.format(self.beer_id)
+        error_message = REQUEST_ERR_MSG.format(self.beer_id)
         
-        status_code, response = request_utils.throttled_request(beer_url, request_utils.default_headers, auth_cookie, error_message, tor_proxy)
+        status_code, response = request_utils.throttled_request(beer_url, request_utils.DEFAULT_HEADERS, auth_cookie, error_message, tor_proxy)
         if status_code == 404:
             return None
         

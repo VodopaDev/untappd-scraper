@@ -23,8 +23,8 @@ class UserFriendsScrapper:
         
         status_code, response = request_utils.throttled_request(friends_url, request_utils.DEFAULT_HEADERS, auth_cookie, error_msg, tor_proxy)
         
-        if status_code == 400:
-            logging.info("FRIENDS {}: 400 received => UNKNONWN".format(self.user_id))
+        if status_code in [None, 400]:
+            logging.info("FRIENDS {}: {} received => UNKNONWN".format(self.user_id, status_code))
             return Status.UNKNOWN, None
         if status_code == 404:
             logging.info("FRIENDS {}: 404 received => MISSING".format(self.user_id))
@@ -49,8 +49,8 @@ class UserFriendsScrapper:
             
             logging.info("FRIENDS+{} {}: {}".format(offset ,self.user_id, more_friends_url))
             status_code, response = request_utils.throttled_request(more_friends_url, headers, auth_cookie, error_msg, tor_proxy)
-            if status_code == 400:
-                logging.info("FRIENDS+{} {}: 400 received => INCOMPLETE".format(offset ,self.user_id))
+            if status_code in [None, 400]:
+                logging.info("FRIENDS+{} {}: {} received => INCOMPLETE".format(offset, status_code ,self.user_id))
                 return Status.INCOMPLETE, friends
             if status_code == 404:
                 logging.info("FRIENDS+{} {}: 404 received => INCOMPLETE".format(offset ,self.user_id))

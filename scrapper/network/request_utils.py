@@ -67,6 +67,7 @@ def throttled_request(url, headers, cookies, error_message, proxy=None, use_cach
                     print("Error (CF ban) on {}: {}".format(proxy.current_ip, url))
                     proxy.renew_ip()
                     time.sleep(random_delay())
+                    return None, None
                 else:
                     print("Error (CF ban): {}".format(url))
                     raise Exception("{}: CF banned this ip".format(url))

@@ -55,7 +55,7 @@ class ListProxy:
         
         if len(self.proxy_ips) > 0:
             np.random.shuffle(self.proxy_ips)
-            self.current_ip = self.proxies_list[0]
+            self.current_ip = self.proxy_ips[0]
             self.__update_proxies()
             logging.warning("{} - renewing IP: removed {} for {}".format(LOGGING_PREFIX, old_ip, self.current_ip))
         else:
